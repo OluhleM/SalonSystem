@@ -7,11 +7,14 @@ router.post("/", async (req, res) => {
   try {
     const booking = new Booking(req.body);
     const saved = await booking.save();
+    console.log("✅ Booking saved to DB:", saved);  // <-- ADD THIS
     res.status(201).json(saved);
   } catch (err) {
+    console.error("❌ Error saving booking:", err); // <-- ADD THIS
     res.status(400).json({ error: err.message });
   }
 });
+
 
 // GET /api/bookings - get all bookings
 router.get("/", async (req, res) => {
@@ -22,5 +25,30 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// PUT /api/bookings/:id - update a booking
+router.put("/:id", async (req, res) => {
+  try {
+    console.log("📥 Update body:", req.body);
+    console.log("🔑 Booking ID:", req.params.id);
+
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedBooking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    res.json(updatedBooking);
+  } catch (err) {
+    console.error("❌ Update error:", err.message);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
 
 module.exports = router;
