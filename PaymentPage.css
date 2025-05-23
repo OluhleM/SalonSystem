@@ -1,0 +1,135 @@
+.payment-container {
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    background: #f9f7fb;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    display: flex;
+    justify-content: space-between;
+    color: #d4b3f5;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.step.active {
+    color: #ba85f7;
+}
+
+.payment-content {
+    display: flex;
+    justify-content: space-between; /* Align children in a row */
+    gap: 20px;
+}
+
+.services, .payment-methods {
+    background: #f0ecf5;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1; /* Allow both to grow equally */
+}
+
+.service-item {
+    margin-bottom: 10px;
+}
+
+.payment-options label {
+    display: block;
+    margin: 10px 0;
+}
+
+.total {
+    margin-top: 10px;
+}
+
+.card {
+    background: #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.selected {
+    border: 2px solid #dcb9f9;
+}
+
+.applepay {
+    display: flex;
+    align-items: center;
+}
+
+.apple-pay-logo {
+    width: 50px; /* Adjust size as needed */
+    margin-right: 10px; /* Space between logo and text */
+}
+
+.confirm-btn {
+    background: #fbb9f9;
+    padding: 15px;
+    border: none;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 20px; /* Add margin to separate from payment methods */
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: blue; /* Link color */
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .payment-content {
+        flex-direction: column; /* Stack vertically on smaller screens */
+    }
+
+    .services, .payment-methods {
+        padding: 15px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .confirm-btn {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 18px;
+    }
+
+    .payment-content {
+        gap: 15px;
+    }
+
+    .service-item {
+        font-size: 14px;
+    }
+
+    .total {
+        font-size: 16px;
+    }
+
+    .confirm-btn {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .link-button {
+        font-size: 14px;
+    }
+}
