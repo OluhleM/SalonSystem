@@ -6,11 +6,9 @@ const {
     updateSalon,
     deleteSalon,
 } = require("../controllers/salonController");
-const { protect } = require("../middleware/authMiddleware");
+const { protect, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
-
-import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 
 
 /**
