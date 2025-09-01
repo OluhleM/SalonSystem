@@ -1,9 +1,11 @@
+// Load environment variables
 require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
-// Routes
+// Import routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const salonRoutes = require("./routes/salonRoutes");
@@ -16,16 +18,28 @@ const app = express();
 // ✅ Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors());
-app.use(express.json()); // JSON body parser
+// ✅ Middleware
+app.use(express.json()); // Parse JSON bodies
 
-// Example route
+// ✅ Allow requests from React frontend (Vite runs on :5173)
+app.use(
+    cors({
+      origin: "http://localhost:5176", // your Vite frontend
+      credentials: true, // allow cookies/auth headers if needed
+    })
+);
+
+// ✅ Base route for testing
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Mount routes
+// ✅ Example test route (you can remove once React is connected)
+app.post("/api/authRegister", (req, res) => {
+  res.json({ message: "User registered successfully" });
+});
+
+// ✅ Mount routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/salons", salonRoutes);
@@ -33,11 +47,70 @@ app.use("/api/services", serviceRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/bookings", bookingRoutes);
 
+// ✅ Start server
 const PORT = process.env.PORT || 5003;
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
+
+
+
+
+// require("dotenv").config();
+// const express = require("express");
+// const cors = require("cors");
+// const connectDB = require("./config/db");
+// //import cors from "cors";
+//
+//
+// // Routes
+// const authRoutes = require("./routes/authRoutes");
+// const userRoutes = require("./routes/userRoutes");
+// const salonRoutes = require("./routes/salonRoutes");
+// const serviceRoutes = require("./routes/serviceRoutes");
+// const productRoutes = require("./routes/productRoutes");
+// const bookingRoutes = require("./routes/bookingRoutes");
+//
+// const app = express();
+//
+//
+// // ✅ Connect to MongoDB
+// connectDB();
+//
+// // ✅ Allow requests from your React frontend
+// app.use(cors({
+//   origin: "http://localhost:5173", // Vite default port
+//   credentials: true, // Allow cookies/auth headers if needed
+// }));
+//
+// // Middleware
+// // app.use(cors());
+// app.use(express.json()); // JSON body parser
+//
+// // Example route
+// app.get("/", (req, res) => {
+//   res.send("API is running...");
+// });
+//
+// // Example route
+// app.post("/api/authRegister", (req, res) => {
+//   res.json({ message: "User registered successfully" });
+// });
+//
+// // Mount routes
+// app.use("/api/auth", authRoutes);
+// app.use("/api/users", userRoutes);
+// app.use("/api/salons", salonRoutes);
+// app.use("/api/services", serviceRoutes);
+// app.use("/api/products", productRoutes);
+// app.use("/api/bookings", bookingRoutes);
+//
+// const PORT = process.env.PORT || 5003;
+//
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server running on port ${PORT}`);
+// });
 
 
 
