@@ -7,9 +7,9 @@ const jwt = require("jsonwebtoken");
 // @access  Public
 exports.registerUser = async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+        const { name, email, password, phone, role} = req.body;
 
-        if (!name || !email || !password) {
+        if (!name || !email || !password || !role) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -27,6 +27,7 @@ exports.registerUser = async (req, res) => {
             email,
             password: hashedPassword,
             phone,
+            role, // Ensure role is included in user creation
         });
 
         // Generate JWT
@@ -39,11 +40,14 @@ exports.registerUser = async (req, res) => {
             name: user.name,
             email: user.email,
             phone: user.phone,
+            role: user.role, // include role for convenience
             token,
         });
     } catch (err) {
-        res.status(500).json({ message: "Server error" });
+        console.error("Register user error:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
     }
+
 };
 
 // @desc    Login user

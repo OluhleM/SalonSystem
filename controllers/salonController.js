@@ -1,17 +1,24 @@
 const Salon = require("../models/Salon");
+const User = require("../models/User");
 
 // @desc    Register a new salon
 // @route   POST /api/salons
-// @access  Private (owner must be logged in)
+// @access  Private (admin only)
 exports.registerSalon = async (req, res) => {
     try {
-        const { name, owner, phone, address, description, email, openingHours } = req.body;
+        const { name, ownerEmail, phone, address, description, email, openingHours } = req.body;
 
-        if (!name || !owner || !address) {
-            return res.status(400).json({ message: "Required fields missing" });
+        if (!name || !ownerEmail || !address || !openingHours?.start || !openingHours?.end) {
+            return res.status(400).json({ message: "Required fields missing or invalid opening hours" });
         }
 
-        // Optional: Check if salon with same name already exists
+        // Find the user by email
+        const owner = await User.findOne({ email: ownerEmail });
+        if (!owner) {
+            return res.status(404).json({ message: "Owner not found. Register the user first." });
+        }
+
+        // Check if salon with same name already exists
         const exists = await Salon.findOne({ name });
         if (exists) {
             return res.status(400).json({ message: "Salon already registered" });
@@ -19,7 +26,7 @@ exports.registerSalon = async (req, res) => {
 
         const salon = await Salon.create({
             name,
-            owner,
+            owner: owner._id,
             phone,
             address,
             description,
@@ -29,8 +36,8 @@ exports.registerSalon = async (req, res) => {
 
         res.status(201).json(salon);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Register salon error:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
@@ -40,14 +47,14 @@ exports.registerSalon = async (req, res) => {
 exports.getSalons = async (req, res) => {
     try {
         const salons = await Salon.find()
-            .populate("owner", "name email role") // Populate owner info
-            .populate("services") // optional: populate services
-            .populate("products"); // optional: populate products
+            .populate("owner", "name email role")
+            .populate("services")
+            .populate("products");
 
         res.json(salons);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Get salons error:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
@@ -64,33 +71,38 @@ exports.getSalonById = async (req, res) => {
         if (!salon) return res.status(404).json({ message: "Salon not found" });
         res.json(salon);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Get salon by ID error:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
 // @desc    Update salon details
 // @route   PUT /api/salons/:id
-// @access  Private (owner only)
+// @access  Private (owner/admin)
 exports.updateSalon = async (req, res) => {
     try {
         const salon = await Salon.findById(req.params.id);
-
         if (!salon) return res.status(404).json({ message: "Salon not found" });
 
+        // Update basic fields
         salon.name = req.body.name || salon.name;
-        salon.owner = req.body.owner || salon.owner;
         salon.phone = req.body.phone || salon.phone;
         salon.address = req.body.address || salon.address;
         salon.description = req.body.description || salon.description;
         salon.email = req.body.email || salon.email;
         salon.openingHours = req.body.openingHours || salon.openingHours;
 
+        // Update owner by email if provided
+        if (req.body.ownerEmail) {
+            const owner = await User.findOne({ email: req.body.ownerEmail });
+            if (owner) salon.owner = owner._id;
+        }
+
         const updatedSalon = await salon.save();
         res.json(updatedSalon);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Update salon error:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
@@ -104,8 +116,9 @@ exports.deleteSalon = async (req, res) => {
 
         res.json({ message: "Salon removed" });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Delete salon error:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 };
+
 
