@@ -24,7 +24,7 @@ app.use(express.json()); // Parse JSON bodies
 // ✅ Allow requests from React frontend (Vite runs on :5173)
 app.use(
     cors({
-      origin: "http://localhost:5176", // your Vite frontend
+      origin: "http://localhost:5173", // your Vite frontend
       credentials: true, // allow cookies/auth headers if needed
     })
 );
