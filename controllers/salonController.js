@@ -3,58 +3,67 @@ const User = require("../models/User");
 
 // @desc    Register a new salon
 // @route   POST /api/salons
-// @access  Private (admin only)
+// @access  Private (admin/owner)
 exports.registerSalon = async (req, res) => {
     try {
-        const { name, ownerEmail, phone, address, description, email, openingHours } = req.body;
+        const { name, ownerEmail, phone, address, description, email, openingHours, imageURL } = req.body;
 
-        if (!name || !ownerEmail || !address || !openingHours?.start || !openingHours?.end) {
-            return res.status(400).json({ message: "Required fields missing or invalid opening hours" });
+        // Validate required fields
+        if (!name || !ownerEmail || !address) {
+            return res.status(400).json({ message: "Name, owner email, and address are required." });
         }
 
-        // Find the user by email
+        if (openingHours && (!openingHours.start || !openingHours.end)) {
+            return res.status(400).json({ message: "Opening hours must include both start and end times." });
+        }
+
+        // Verify owner exists
         const owner = await User.findOne({ email: ownerEmail });
         if (!owner) {
-            return res.status(404).json({ message: "Owner not found. Register the user first." });
+            return res.status(404).json({ message: "Owner not found. Please register the user first." });
         }
 
-        // Check if salon with same name already exists
-        const exists = await Salon.findOne({ name });
-        if (exists) {
-            return res.status(400).json({ message: "Salon already registered" });
+        // Check for duplicate salon name
+        const existingSalon = await Salon.findOne({ name });
+        if (existingSalon) {
+            return res.status(400).json({ message: "A salon with this name already exists." });
         }
 
+        // Create salon
         const salon = await Salon.create({
             name,
             owner: owner._id,
+            ownerEmail, // ✅ Critical for frontend
             phone,
             address,
             description,
             email,
-            openingHours
+            openingHours,
+            imageURL
+
         });
 
         res.status(201).json(salon);
     } catch (err) {
         console.error("Register salon error:", err);
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: "Server error while registering salon." });
     }
 };
 
-// @desc    Get all salons
+// @desc    Get all salons (public)
 // @route   GET /api/salons
 // @access  Public
 exports.getSalons = async (req, res) => {
     try {
+        // Only populate owner (safe); skip services/products until implemented
         const salons = await Salon.find()
-            .populate("owner", "name email role")
-            .populate("services")
-            .populate("products");
+            .populate("owner", "name email")
+            .select('-__v'); // Exclude __v for cleaner response
 
         res.json(salons);
     } catch (err) {
         console.error("Get salons error:", err);
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: "Server error while fetching salons." });
     }
 };
 
@@ -64,15 +73,17 @@ exports.getSalons = async (req, res) => {
 exports.getSalonById = async (req, res) => {
     try {
         const salon = await Salon.findById(req.params.id)
-            .populate("owner", "name email role")
-            .populate("services")
-            .populate("products");
+            .populate("owner", "name email")
+            .select('-__v');
 
-        if (!salon) return res.status(404).json({ message: "Salon not found" });
+        if (!salon) {
+            return res.status(404).json({ message: "Salon not found." });
+        }
+
         res.json(salon);
     } catch (err) {
         console.error("Get salon by ID error:", err);
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: "Server error while fetching salon details." });
     }
 };
 
@@ -81,28 +92,37 @@ exports.getSalonById = async (req, res) => {
 // @access  Private (owner/admin)
 exports.updateSalon = async (req, res) => {
     try {
+        const { name, ownerEmail, phone, address, description, email, openingHours, imageURL } = req.body;
+
         const salon = await Salon.findById(req.params.id);
-        if (!salon) return res.status(404).json({ message: "Salon not found" });
+        if (!salon) {
+            return res.status(404).json({ message: "Salon not found." });
+        }
 
-        // Update basic fields
-        salon.name = req.body.name || salon.name;
-        salon.phone = req.body.phone || salon.phone;
-        salon.address = req.body.address || salon.address;
-        salon.description = req.body.description || salon.description;
-        salon.email = req.body.email || salon.email;
-        salon.openingHours = req.body.openingHours || salon.openingHours;
+        // Update fields
+        if (name) salon.name = name;
+        if (phone) salon.phone = phone;
+        if (address) salon.address = address;
+        if (description !== undefined) salon.description = description;
+        if (email) salon.email = email;
+        if (openingHours) salon.openingHours = openingHours;
+        if (imageURL !== undefined) salon.imageURL = imageURL;
 
-        // Update owner by email if provided
-        if (req.body.ownerEmail) {
-            const owner = await User.findOne({ email: req.body.ownerEmail });
-            if (owner) salon.owner = owner._id;
+        // Update owner if email provided
+        if (ownerEmail) {
+            const owner = await User.findOne({ email: ownerEmail });
+            if (!owner) {
+                return res.status(404).json({ message: "New owner not found." });
+            }
+            salon.owner = owner._id;
+            salon.ownerEmail = ownerEmail; // ✅ Keep ownerEmail in sync
         }
 
         const updatedSalon = await salon.save();
         res.json(updatedSalon);
     } catch (err) {
         console.error("Update salon error:", err);
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: "Server error while updating salon." });
     }
 };
 
@@ -112,13 +132,13 @@ exports.updateSalon = async (req, res) => {
 exports.deleteSalon = async (req, res) => {
     try {
         const salon = await Salon.findByIdAndDelete(req.params.id);
-        if (!salon) return res.status(404).json({ message: "Salon not found" });
+        if (!salon) {
+            return res.status(404).json({ message: "Salon not found." });
+        }
 
-        res.json({ message: "Salon removed" });
+        res.json({ message: "Salon successfully deleted." });
     } catch (err) {
         console.error("Delete salon error:", err);
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: "Server error while deleting salon." });
     }
 };
-
-

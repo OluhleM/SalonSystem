@@ -10,23 +10,17 @@ const { protect, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-
 /**
  * @route   GET /api/salons
  * @desc    Get all salons (public)
  */
+router.get("/", getSalons);
 
 /**
  * @route   GET /api/salons/:id
  * @desc    Get a salon by ID (public)
  */
-router.get("/", getSalons); // public
-router.get(
-    "/:id",
-    protect,
-    authorizeRoles("owner", "admin"),   // Only owners & admins
-    getSalonById
-);
+router.get("/:id", getSalonById);
 
 /**
  * @route   POST /api/salons
@@ -35,7 +29,7 @@ router.get(
 router.post(
     "/",
     protect,
-    authorizeRoles("owner", "admin"),   // Only owners & admins
+    authorizeRoles("owner", "admin"),
     registerSalon
 );
 
@@ -46,7 +40,7 @@ router.post(
 router.put(
     "/:id",
     protect,
-    authorizeRoles("owner", "admin"),   // Only owners & admins
+    authorizeRoles("owner", "admin"),
     updateSalon
 );
 
@@ -57,11 +51,8 @@ router.put(
 router.delete(
     "/:id",
     protect,
-    authorizeRoles("owner", "admin"),   // Only owners & admins
+    authorizeRoles("owner", "admin"),
     deleteSalon
 );
 
-
 module.exports = router;
-
-
