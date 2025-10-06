@@ -5,30 +5,32 @@ const Service = require("../models/Service");
 
 // @desc    Create a new booking
 // @route   POST /api/bookings
-// @access  Public (or protected if needed)
+// @access  Protected (requires authenticated user)
 exports.createBooking = async (req, res) => {
     try {
-        const { customer, salon, service, bookingDateTime, phone, price, notes } = req.body;
+        // ✅ ENFORCE: must have authenticated user
+        if (!req.user) {
+            return res.status(401).json({ message: "Authentication required" });
+        }
 
-        // Basic validation
-        if (!customer || !salon || !service || !bookingDateTime || !price) {
+        const { salon, service, bookingDateTime, phone, notes } = req.body;
+
+        const customer = req.user.id; // ✅ Now safe to use
+
+        if (!customer || !salon || !service || !bookingDateTime) {
             return res.status(400).json({ message: "All required fields must be provided" });
         }
 
-        // Find the referenced documents
-        const customerDoc = await User.findOne({ email: new RegExp(`^${customer}$`, "i") });
-        const salonDoc = await Salon.findOne({ name: new RegExp(`^${salon}$`, "i") });
-        const serviceDoc = await Service.findOne({ name: new RegExp(`^${service}$`, "i") });
-
-        console.log("Found customerDoc:", customerDoc);
-        console.log("Found salonDoc:", salonDoc);
-        console.log("Found serviceDoc:", serviceDoc);
+        const [customerDoc, salonDoc, serviceDoc] = await Promise.all([
+            User.findById(customer),
+            Salon.findById(salon),
+            Service.findById(service)
+        ]);
 
         if (!customerDoc || !salonDoc || !serviceDoc) {
-            return res.status(400).json({ message: "Invalid customer email, salon, or service" });
+            return res.status(400).json({ message: "Invalid customer, salon, or service ID" });
         }
 
-        // Optional: prevent double booking
         const existingBooking = await Booking.findOne({
             salon: salonDoc._id,
             service: serviceDoc._id,
@@ -39,14 +41,13 @@ exports.createBooking = async (req, res) => {
             return res.status(400).json({ message: "This time slot is already booked." });
         }
 
-        // Create booking with resolved IDs
         const booking = new Booking({
             customer: customerDoc._id,
             salon: salonDoc._id,
             service: serviceDoc._id,
             bookingDateTime,
             phone,
-            price,
+            price: serviceDoc.price,
             notes,
         });
 
@@ -65,9 +66,9 @@ exports.createBooking = async (req, res) => {
 exports.getBookings = async (req, res) => {
     try {
         const bookings = await Booking.find()
-            .populate("customer", "name email")       // only return name + email
-            .populate("salon", "name")                // only return salon name
-            .populate("service", "name price")        // only return service name + price
+            .populate("customer", "name email")
+            .populate("salon", "name")
+            .populate("service", "name price")
             .sort({ bookingDateTime: 1 });
 
         res.json(bookings);
@@ -110,16 +111,15 @@ exports.updateBooking = async (req, res) => {
             return res.status(404).json({ message: "Booking not found" });
         }
 
-        booking.clientName = req.body.clientName || booking.clientName;
-        booking.service = req.body.service || booking.service;
-        booking.date = req.body.date || booking.date;
-        booking.time = req.body.time || booking.time;
-        booking.phone = req.body.phone || booking.phone;
-        booking.status = req.body.status || booking.status;
+        const { status, paymentStatus, notes } = req.body;
+        if (status) booking.status = status;
+        if (paymentStatus) booking.paymentStatus = paymentStatus;
+        if (notes !== undefined) booking.notes = notes;
 
         const updatedBooking = await booking.save();
         res.json(updatedBooking);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Server error" });
     }
 };
@@ -135,6 +135,7 @@ exports.deleteBooking = async (req, res) => {
         }
         res.json({ message: "Booking removed" });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Server error" });
     }
 };
