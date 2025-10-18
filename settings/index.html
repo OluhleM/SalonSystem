@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - Hair Salon Booking</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <!-- Navigation Menu -->
+    <nav class="nav-menu" id="nav-menu">
+      <div class="nav-header">
+        <h3>Salon System</h3>
+        <button class="close-nav" id="close-nav">&times;</button>
+      </div>
+      <ul class="nav-links">
+        <li><a href="/dashboard.html"><span class="nav-icon">🏠</span> Home</a></li>
+        <li><a href="/salons.html"><span class="nav-icon">💇</span> Salons</a></li>
+        <li><a href="/services.html"><span class="nav-icon">✂️</span> Services</a></li>
+        <li><a href="/bookings.html"><span class="nav-icon">📅</span> My Bookings</a></li>
+        <li><a href="/products.html"><span class="nav-icon">🛍️</span> Products</a></li>
+        <li><a href="/orders.html"><span class="nav-icon">📦</span> My Orders</a></li>
+        <li><a href="/settings.html" class="active"><span class="nav-icon">⚙️</span> Settings</a></li>
+        <li><a href="/help.html"><span class="nav-icon">❓</span> Help & Support</a></li>
+      </ul>
+    </nav>
+
+    <!-- Overlay for mobile menu -->
+    <div class="nav-overlay" id="nav-overlay"></div>
+
+    <header class="top-bar" role="banner">
+      <button class="menu-icon" aria-label="Open navigation menu" tabindex="0" id="menu-toggle">☰</button>
+      <label for="search-input" class="sr-only">Search</label>
+      <input type="text" id="search-input" placeholder="Search" class="search-box" aria-label="Search" />
+      <button class="search-btn" type="button" aria-label="Search">🔍 Search</button>
+    </header>
+
+    <main class="settings" role="main">
+      <h1 id="main-heading">Settings</h1>
+
+      <div class="profile">
+        <div class="info">
+          <h2>Profile Info</h2>
+          <form id="profile-form">
+            <label for="fullname">Full names</label>
+            <input type="text" id="fullname" name="fullname" placeholder="Enter your full name" disabled required />
+
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" disabled required />
+
+            <label for="phone">Contact Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" disabled />
+
+            <button type="button" class="edit-btn">✏️ Edit</button>
+            <div class="loading" style="display: none;">Saving...</div>
+          </form>
+        </div>
+
+        <div class="photo">
+          <img src="profile.jpeg" alt="Profile picture of Nicole Qathule" class="avatar" />
+          <p class="name" aria-live="polite">Nicole Qathule</p>
+        </div>
+      </div>
+
+      <div class="notifications">
+        <h2>Notifications</h2>
+        <label><input type="checkbox" /> Receive Booking Confirmation via SMS</label>
+        <label><input type="checkbox" /> Notify Me When My Stylist is Available</label>
+        <label><input type="checkbox" /> Receive Promotions & Discounts</label>
+        <label><input type="checkbox" /> Enable Appointment Reminders</label>
+      </div>
+
+      <div class="security">
+        <h2>🔒 Security</h2>
+        <button class="change-pass" id="change-pass-btn">🔑 Change password ></button>
+
+        <!-- Password Change Modal -->
+        <div id="password-modal" class="modal" style="display: none;">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Change Password</h3>
+            <form id="password-form">
+              <label for="current-password">Current Password</label>
+              <input type="password" id="current-password" name="currentPassword" required />
+
+              <label for="new-password">New Password</label>
+              <input type="password" id="new-password" name="newPassword" required />
+
+              <label for="confirm-password">Confirm New Password</label>
+              <input type="password" id="confirm-password" name="confirmPassword" required />
+
+              <button type="submit">Update Password</button>
+              <button type="button" class="cancel-btn">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <button class="logout" id="logout-btn">🚪 Logout</button>
+      </footer>
+
+      <!-- Toast Notification -->
+      <div id="toast" class="toast"></div>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
