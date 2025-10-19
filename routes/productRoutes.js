@@ -6,16 +6,21 @@ const {
     updateProduct,
     deleteProduct,
 } = require("../controllers/productController");
+const { protect, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+// GET /api/products?salon=SALON_ID
 router.get("/", getProducts);
+
 router.get("/:id", getProductById);
-router.post("/", createProduct);
-router.put("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+
+router.post("/", protect, authorizeRoles("owner", "admin"), createProduct);
+router.put("/:id", protect, authorizeRoles("owner", "admin"), updateProduct);
+router.delete("/:id", protect, authorizeRoles("owner", "admin"), deleteProduct);
 
 module.exports = router;
+
 
 
 

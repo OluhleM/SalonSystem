@@ -1,20 +1,16 @@
 const mongoose = require("mongoose");
 
-const productSchema = new mongoose.Schema(
-    {
-            name: { type: String, required: true },
-            description: { type: String },
-            price: { type: Number, required: true },
-            stock: { type: Number, required: true, default: 0 },
-            imageUrl: { type: String }, // optional product image
-            salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", required: true },
-            category: { type: String }, // e.g., Hair Care, Skin Care
-            isActive: { type: Boolean, default: true },
-    },
-    { timestamps: true }
-);
+const productSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    description: { type: String },
+    price: { type: Number, required: true },
+    category: { type: String },
+    salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", required: true },
+    imageURL: { type: String }
+}, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);
+
 
 
 

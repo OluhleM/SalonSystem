@@ -9,6 +9,8 @@ const connectDB = require("./config/db");
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const checkoutRoutes = require("./routes/checkoutRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 const salonRoutes = require("./routes/salonRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
 const productRoutes = require("./routes/productRoutes");
@@ -45,7 +47,9 @@ app.post("/api/authRegister", (req, res) => {
 
 // ✅ Mount routes
 app.use("/api/auth", authRoutes);
+app.use("/api/orders/checkout", checkoutRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/salons", salonRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/products", productRoutes);
