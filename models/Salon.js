@@ -10,14 +10,13 @@ const salonSchema = new mongoose.Schema({
     email: { type: String, required: true },
     description: { type: String },
     openingHours: {
-        start: { type: String }, // e.g., "09:00"
-        end: { type: String }    // e.g., "18:00"
+        start: { type: String },
+        end: { type: String }
     },
 
     imageURL: String
-    // Optional: Add these later for richer frontend
-    // rating: { type: Number, default: 4.5 },
-    // categories: [{ type: String }] // e.g., ["Hair", "Nails"]
+    // Optional: Add these later for better frontend
+
 
 }, {
     timestamps: true

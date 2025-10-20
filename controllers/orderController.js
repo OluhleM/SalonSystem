@@ -18,9 +18,9 @@ exports.checkout = async (req, res) => {
         const createdBookings = [];
         let createdOrder = null;
 
-        // ============================
-        // 1️⃣ Process Bookings
-        // ============================
+
+        // Process Bookings
+
         for (const item of bookingItems) {
             if (!item.fullPrice || !item.salonId || !item.serviceId || !item.bookingDateTime) {
                 console.warn("Skipping invalid booking item:", item);
@@ -46,9 +46,9 @@ exports.checkout = async (req, res) => {
             }
         }
 
-        // ============================
-        // 2️⃣ Process Product Orders
-        // ============================
+
+        // Process Product Orders
+
         if (productItems.length > 0) {
             const validProducts = [];
 
@@ -65,7 +65,7 @@ exports.checkout = async (req, res) => {
                     continue;
                 }
 
-                // Decrement stock safely
+                // Decrease stock safely
                 const newStock = Math.max(0, product.stock - item.quantity);
                 product.stock = newStock;
                 await product.save();
@@ -97,9 +97,9 @@ exports.checkout = async (req, res) => {
             }
         }
 
-        // ============================
-        // ✅ Response
-        // ============================
+
+        //  Response
+
         return res.status(201).json({
             message: "Checkout completed successfully.",
             bookings: createdBookings,

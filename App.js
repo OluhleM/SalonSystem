@@ -1,5 +1,5 @@
 import React from 'react';
-import PaymentPage from './components/PaymentPage'; // Correct import path
+import PaymentPage from './components/PaymentPage';
 import './App.css';
 
 function App() {
