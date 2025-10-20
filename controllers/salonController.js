@@ -33,7 +33,7 @@ exports.registerSalon = async (req, res) => {
         const salon = await Salon.create({
             name,
             owner: owner._id,
-            ownerEmail, // ✅ Critical for frontend
+            ownerEmail, //essential for frontend
             phone,
             address,
             description,
@@ -55,10 +55,10 @@ exports.registerSalon = async (req, res) => {
 // @access  Public
 exports.getSalons = async (req, res) => {
     try {
-        // Only populate owner (safe); skip services/products until implemented
+        // only populate owner (safe); skip services/products until implemented
         const salons = await Salon.find()
             .populate("owner", "name email")
-            .select('-__v'); // Exclude __v for cleaner response
+            .select('-__v');
 
         res.json(salons);
     } catch (err) {
@@ -115,7 +115,7 @@ exports.updateSalon = async (req, res) => {
                 return res.status(404).json({ message: "New owner not found." });
             }
             salon.owner = owner._id;
-            salon.ownerEmail = ownerEmail; // ✅ Keep ownerEmail in sync
+            salon.ownerEmail = ownerEmail; // keeps ownerEmail in sync
         }
 
         const updatedSalon = await salon.save();

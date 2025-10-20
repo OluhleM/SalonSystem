@@ -8,14 +8,14 @@ const Service = require("../models/Service");
 // @access  Protected (requires authenticated user)
 exports.createBooking = async (req, res) => {
     try {
-        // ✅ ENFORCE: must have authenticated user
+        //  must have authenticated user
         if (!req.user) {
             return res.status(401).json({ message: "Authentication required" });
         }
 
         const { salon, service, bookingDateTime, phone, notes } = req.body;
 
-        const customer = req.user.id; // ✅ Now safe to use
+        const customer = req.user.id; // safe to use
 
         if (!customer || !salon || !service || !bookingDateTime) {
             return res.status(400).json({ message: "All required fields must be provided" });
