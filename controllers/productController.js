@@ -17,7 +17,7 @@ const getProducts = async (req, res) => {
         const query = {};
         if (req.query.salon) query.salon = req.query.salon;
 
-        const products = await Product.find(query);
+        const products = await Product.find(query).populate("salon", "name");
         res.status(200).json(products);
     } catch (err) {
         console.error("Error fetching products:", err);
